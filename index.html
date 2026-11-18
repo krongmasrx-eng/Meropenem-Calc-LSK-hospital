@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมประเมินขนาดยา Meropenem (Lansaka Hospital)</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-light: #ccfbf1;
+            --secondary: #0284c7;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.55rem;
+            font-weight: 700;
+        }
+
+        .form-body {
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+            margin-top: 20px;
+            margin-bottom: 16px;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .highlight-box {
+            background-color: #f0fdfa;
+            border: 1px solid #99f6e4;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .highlight-box label {
+            color: var(--primary);
+        }
+
+        .divider-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .divider-text::before, .divider-text::after {
+            content: "";
+            display: inline-block;
+            width: 30%;
+            height: 1px;
+            background: var(--border-color);
+            vertical-align: middle;
+            margin: 0 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 4px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .checkbox-group.danger-box {
+            border-color: #fca5a5;
+            background: #fff5f5;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: #0d9488;
+        }
+
+        /* Result Section */
+        #result-section {
+            display: none;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--border-color);
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 5px solid;
+        }
+
+        .alert-danger {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background: var(--warning-bg);
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: var(--success-bg);
+            border-color: var(--success);
+            color: #166534;
+        }
+
+        .alert-info {
+            background: #f0f9ff;
+            border-color: var(--secondary);
+            color: #075985;
+        }
+
+        .alert h4 {
+            margin: 0 0 8px 0;
+            font-size: 1.05rem;
+        }
+
+        .alert p, .alert ul {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .alert ul {
+            padding-left: 20px;
+            margin-top: 6px;
+        }
+
+        .footer {
+            background: #f8fafc;
+            text-align: center;
+            padding: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>โปรแกรมประเมินขนาดยา Meropenem (Lansaka Hospital)</h1>
+    </div>
+
+    <div class="form-body">
+        <!-- ส่วนที่ 1 -->
+        <div class="section-title">1. ข้อมูลผู้ป่วยและการทำงานของไต</div>
+        
+        <div class="form-group">
+            <label for="renal_status">สภาวะการบำบัดทดแทนไต (ถ้ามี)</label>
+            <select id="renal_status" onchange="toggleRenalInputs()">
+                <option value="normal">ผู้ป่วยทั่วไป (ประเมินตามค่า CrCl)</option>
+                <option value="hd">ฟอกเลือดด้วยเครื่องไตเทียม (Hemodialysis)</option>
+                <option value="capd">ล้างไตทางช่องท้อง (CAPD)</option>
+            </select>
+        </div>
+
+        <div id="renal_calc_wrapper">
+            <!-- ช่องกรอกกรณีทราบ CrCl แล้ว -->
+            <div class="highlight-box">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="known_crcl">กรณีทราบค่า CrCl แล้ว (mL/min)</label>
+                    <input type="number" id="known_crcl" placeholder="กรอกค่า CrCl ได้เลย (ไม่ต้องกรอกข้อมูลด้านล่าง)" step="0.1" min="1" oninput="handleDirectCrcl()">
+                </div>
+            </div>
+
+            <div class="divider-text">หรือคำนวณจากข้อมูลผู้ป่วย</div>
+
+            <!-- ช่องกรอกข้อมูลพื้นฐานสำหรับคำนวณ Cockcroft-Gault -->
+            <div id="cg_inputs_group">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="age">อายุ (ปี)</label>
+                        <input type="number" id="age" placeholder="เช่น 65" min="1" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="sex">เพศ</label>
+                        <select id="sex">
+                            <option value="male">ชาย (Male)</option>
+                            <option value="female">หญิง (Female)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="weight">น้ำหนักจริง (kg)</label>
+                        <input type="number" id="weight" placeholder="เช่น 60" step="0.1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="height">ส่วนสูง (cm)</label>
+                        <input type="number" id="height" placeholder="เช่น 165" step="0.1" min="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="scr">Serum Creatinine (mg/dL)</label>
+                    <input type="number" id="scr" placeholder="เช่น 1.2" step="0.01" min="0.1">
+                </div>
+            </div>
+        </div>
+
+        <!-- ส่วนที่ 2 -->
+        <div class="section-title">2. ข้อบ่งใช้และคำสั่งใช้ยาปัจจุบัน (Optional)</div>
+
+        <div class="form-group">
+            <label for="indication">กลุ่มข้อบ่งใช้ตามตารางโรงพยาบาลลานสกา</label>
+            <select id="indication">
+                <option value="usual">Usual dose (FN, PNA, Pseudomonas, การติดเชื้อทั่วไป)</option>
+                <option value="meningitis">Meningitis / CNS Infection / Severe Sepsis (High dose)</option>
+                <option value="skin">Complicated Skin & Soft Tissue / Intra-abdominal (Mild-Mod)</option>
+            </select>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="order_dose">ขนาดยาที่แพทย์สั่ง (ต่อครั้ง)</label>
+                <select id="order_dose">
+                    <option value="">-- ไม่ระบุ --</option>
+                    <option value="0.5">500 mg (0.5 g)</option>
+                    <option value="1">1,000 mg (1 g)</option>
+                    <option value="2">2,000 mg (2 g)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="order_freq">ความถี่ที่แพทย์สั่ง</label>
+                <select id="order_freq">
+                    <option value="">-- ไม่ระบุ --</option>
+                    <option value="q8h">ทุก 8 ชั่วโมง (q 8 hr)</option>
+                    <option value="q12h">ทุก 12 ชั่วโมง (q 12 hr)</option>
+                    <option value="q24h">ทุก 24 ชั่วโมง (q 24 hr)</option>
+                    <option value="post_hd">หลังฟอกเลือด (Post-HD)</option>
+                </select>
+            </div>
+        </div>
+
+        <label class="checkbox-group">
+            <input type="checkbox" id="extended_infusion">
+            <div>
+                <strong>พิจารณาการให้ยาแบบหยดนาน (Extended Infusion / High MIC / Sepsis)</strong><br>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">หยดยาทางหลอดเลือดดำนาน 3 ชั่วโมง เพื่อเพิ่มประสิทธิภาพ %T>MIC</span>
+            </div>
+        </label>
+
+        <label class="checkbox-group danger-box">
+            <input type="checkbox" id="valproate">
+            <div>
+                <strong style="color: var(--danger);">ผู้ป่วยได้รับยา Valproic acid / Sodium valproate ร่วมด้วย</strong><br>
+                <span style="font-size: 0.85rem; color: #b91c1c;">ตรวจสอบอันตรกิริยาระหว่างยา (Drug-Drug Interaction)</span>
+            </div>
+        </label>
+
+        <button type="button" class="btn-submit" onclick="evaluateMeropenem()">ประเมินความเหมาะสมของขนาดยา</button>
+
+        <!-- ส่วนแสดงผลลัพธ์ -->
+        <div id="result-section"></div>
+    </div>
+
+    <div class="footer">
+        พัฒนาโดย ภญ.กรองมาศ ธิติโสภี
+    </div>
+</div>
+
+<script>
+    function toggleRenalInputs() {
+        const status = document.getElementById('renal_status').value;
+        const wrapper = document.getElementById('renal_calc_wrapper');
+
+        if (status === 'normal') {
+            wrapper.style.display = 'block';
+        } else {
+            wrapper.style.display = 'none';
+        }
+    }
+
+    function handleDirectCrcl() {
+        const knownCrcl = document.getElementById('known_crcl').value;
+        const cgInputs = document.getElementById('cg_inputs_group');
+        
+        if (knownCrcl && knownCrcl.trim() !== "") {
+            cgInputs.style.opacity = "0.4";
+        } else {
+            cgInputs.style.opacity = "1";
+        }
+    }
+
+    function evaluateMeropenem() {
+        const renalStatus = document.getElementById('renal_status').value;
+        const knownCrclVal = document.getElementById('known_crcl').value;
+        const indication = document.getElementById('indication').value;
+        const orderDose = document.getElementById('order_dose').value;
+        const orderFreq = document.getElementById('order_freq').value;
+        const isExtended = document.getElementById('extended_infusion').checked;
+        const hasValproate = document.getElementById('valproate').checked;
+
+        let crcl = 0;
+        let renalInfoHtml = "";
+
+        if (renalStatus === 'normal') {
+            if (knownCrclVal && knownCrclVal.trim() !== "") {
+                crcl = parseFloat(knownCrclVal);
+                if (isNaN(crcl) || crcl <= 0) {
+                    alert("กรุณาระบุค่า CrCl (mL/min) ที่ถูกต้องครับ");
+                    return;
+                }
+                renalInfoHtml = `<li><strong>ค่า CrCl ที่ระบุโดยตรง:</strong> ${crcl.toFixed(2)} mL/min</li>`;
+            } else {
+                const age = parseFloat(document.getElementById('age').value);
+                const sex = document.getElementById('sex').value;
+                const weight = parseFloat(document.getElementById('weight').value);
+                const height = parseFloat(document.getElementById('height').value);
+                const scr = parseFloat(document.getElementById('scr').value);
+
+                if (!age || !weight || !height || !scr) {
+                    alert("กรุณากรอกค่า CrCl หรือกรอกข้อมูลพื้นฐาน (อายุ, น้ำหนัก, ส่วนสูง และ SCr) ให้ครบถ้วนครับ");
+                    return;
+                }
+
+                const heightInInches = height / 2.54;
+                let ibw = (sex === 'male') 
+                    ? 50 + 2.3 * (heightInInches - 60) 
+                    : 45.5 + 2.3 * (heightInInches - 60);
+                if (ibw < 30) ibw = weight;
+
+                let weightUsed = weight;
+                let weightNote = "ใช้น้ำหนักจริง (Actual BW) เนื่องจากน้อยกว่าหรือเท่ากับ IBW";
+
+                if (weight > ibw * 1.2) {
+                    weightUsed = ibw + 0.4 * (weight - ibw);
+                    weightNote = `ใช้น้ำหนักปรับแก้ (AdjBW = ${weightUsed.toFixed(2)} kg) เนื่องจากน้ำหนักจริงเกิน 120% ของ IBW`;
+                } else if (weight > ibw) {
+                    weightUsed = ibw;
+                    weightNote = `ใช้น้ำหนักมาตรฐาน (IBW = ${ibw.toFixed(2)} kg) เนื่องจากน้ำหนักจริงมากกว่า IBW`;
+                }
+
+                crcl = ((140 - age) * weightUsed) / (72 * scr);
+                if (sex === 'female') crcl *= 0.85;
+
+                renalInfoHtml = `
+                    <li><strong>น้ำหนักตัวมาตรฐาน (IBW):</strong> ${ibw.toFixed(2)} kg (${weightNote})</li>
+                    <li><strong>ค่า CrCl (Cockcroft-Gault):</strong> ${crcl.toFixed(2)} mL/min</li>
+                `;
+            }
+        } else if (renalStatus === 'hd') {
+            renalInfoHtml = `<li><strong>สภาวะไต:</strong> ผู้ป่วยฟอกเลือดด้วยเครื่องไตเทียม (Hemodialysis)</li>`;
+        } else {
+            renalInfoHtml = `<li><strong>สภาวะไต:</strong> ผู้ป่วยล้างไตทางช่องท้อง (CAPD)</li>`;
+        }
+
+        let recDose = "";
+        let recFreq = "";
+        let recText = "";
+
+        let baseDose = (indication === 'meningitis') ? "2" : (indication === 'skin' ? "0.5" : "1");
+        let baseDoseLabel = (indication === 'meningitis') ? "2 g" : (indication === 'skin' ? "500 mg" : "1 g");
+
+        if (renalStatus === 'hd') {
+            recDose = (indication === 'meningitis') ? "1" : "0.5";
+            recFreq = "q24h";
+            recText = (indication === 'meningitis') 
+                ? "1 g ทุก 24 ชั่วโมง (ให้ยาหลังฟอกเลือดในวันที่ฟอกเลือด)" 
+                : "500 mg ทุก 24 ชั่วโมง (ให้ยาหลังฟอกเลือดในวันที่ฟอกเลือด)";
+        } else if (renalStatus === 'capd') {
+            recDose = (indication === 'meningitis') ? "1" : "0.5";
+            recFreq = "q24h";
+            recText = (indication === 'meningitis') 
+                ? "1 g ทุก 24 ชั่วโมง" 
+                : "500 mg ทุก 24 ชั่วโมง";
+        } else {
+            if (crcl > 50) {
+                recDose = baseDose;
+                recFreq = "q8h";
+                recText = `${baseDoseLabel} ทุก 8 ชั่วโมง`;
+            } else if (crcl >= 26 && crcl <= 50) {
+                recDose = baseDose;
+                recFreq = "q12h";
+                recText = `${baseDoseLabel} ทุก 12 ชั่วโมง`;
+            } else if (crcl >= 10 && crcl <= 25) {
+                recDose = (indication === 'meningitis') ? "1" : (indication === 'skin' ? "0.25" : "0.5");
+                let halfDoseLabel = (indication === 'meningitis') ? "1 g" : (indication === 'skin' ? "250 mg" : "500 mg");
+                recFreq = "q12h";
+                recText = `${halfDoseLabel} ทุก 12 ชั่วโมง`;
+            } else {
+                recDose = (indication === 'meningitis') ? "1" : (indication === 'skin' ? "0.25" : "0.5");
+                let halfDoseLabel = (indication === 'meningitis') ? "1 g" : (indication === 'skin' ? "250 mg" : "500 mg");
+                recFreq = "q24h";
+                recText = `${halfDoseLabel} ทุก 24 ชั่วโมง`;
+            }
+        }
+
+        let html = "";
+
+        if (hasValproate) {
+            html += `
+                <div class="alert alert-danger">
+                    <h4>⚠️ แจ้งเตือนอันตรกิริยาระหว่างยาระดับรุนแรง (Contraindicated / Major Interaction)</h4>
+                    <p><strong>Meropenem + Valproic acid / Sodium valproate:</strong></p>
+                    <ul>
+                        <li>Meropenem ทำให้ระดับยา Valproic acid ในเลือดลดลงอย่างรวดเร็ว (มากกว่า 60-90%) เสี่ยงต่อการเกิด<strong>อาการชักซ้ำ (Breakthrough Seizures)</strong></li>
+                        <li><strong>แนวทางจัดการ:</strong> แนะนำปรึกษาแพทย์เพื่อเปลี่ยนไปใช้ยาปฏิชีวนะกลุ่มอื่น (เช่น Cefepime, Piperacillin/Tazobactam) หากไม่สามารถเลี่ยงได้ ควรปรึกษาแพทย์เพื่อพิจารณาเพิ่มยากันชักกลุ่มอื่นเสริมชั่วคราว</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        html += `
+            <div class="alert alert-info">
+                <h4>📊 ผลการประเมินการทำงานของไต</h4>
+                <ul>${renalInfoHtml}</ul>
+            </div>
+        `;
+
+        let infusionNote = isExtended 
+            ? `<br><strong>คำแนะนำการบริหารยา:</strong> แนะนำหยดยาทางหลอดเลือดดำนาน <strong>3 ชั่วโมง (Extended Infusion)</strong> (ควรให้ Loading dose ครั้งแรกหยดนาน 30 นาทีก่อนเริ่ม Extended infusion และระวังความคงตัวของสารละลายที่อุณหภูมิห้องไม่เกิน 4 ชั่วโมง)` 
+            : `<br><strong>คำแนะนำการบริหารยา:</strong> หยดยาทางหลอดเลือดดำนาน 15-30 นาที`;
+
+        html += `
+            <div class="alert alert-success">
+                <h4>💊 ขนาดยา Meropenem ที่แนะนำตาม Guideline</h4>
+                <p style="font-size: 1.1rem; font-weight: bold; margin-top: 5px;">👉 ${recText}</p>
+                <p style="margin-top: 5px;">${infusionNote}</p>
+            </div>
+        `;
+
+        if (orderDose && orderFreq) {
+            if (orderDose === recDose && orderFreq === recFreq) {
+                html += `
+                    <div class="alert alert-success">
+                        <h4>✅ ผลการประเมินคำสั่งใช้ยาของแพทย์</h4>
+                        <p>คำสั่งใช้ยาปัจจุบัน <strong>เหมาะสม (Appropriate)</strong> สอดคล้องกับสภาวะการทำงานของไตและข้อบ่งใช้</p>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="alert alert-warning">
+                        <h4>⚠️ ผลการประเมินคำสั่งใช้ยาของแพทย์</h4>
+                        <p>คำสั่งใช้ยาปัจจุบัน <strong>อาจไม่สอดคล้องกับ Guideline</strong> (ขนาดยาที่แนะนำคือ <strong>${recText}</strong>) แนะนำตรวจสอบข้อบ่งใช้ทางคลินิกเพิ่มเติมหรือปรึกษาแพทย์เพื่อปรับขนาดยา</p>
+                    </div>
+                `;
+            }
+        }
+
+        const resultDiv = document.getElementById('result-section');
+        resultDiv.innerHTML = html;
+        resultDiv.style.display = 'block';
+        resultDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
